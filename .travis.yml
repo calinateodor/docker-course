@@ -9,12 +9,12 @@ script:
     - docker run -e CI=true calinate/docker-web-app npm run test
 
 deploy:
-    provider: elastickbeanstalk
+    provider: elasticbeanstalk
     region: "us-east-2"
     app: "docker-web-app"
     env: "DockerWebApp-env"
     bucket_name: "elasticbeanstalk-us-east-2-089661531509"
-    bucket_path: "docker-web-app/product_app_1/web-app"
+    bucket_path: "docker-web-app"
     on:
         branch: master
     access_key_id: "$AWS-ACCESS-KEY"
