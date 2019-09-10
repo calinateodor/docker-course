@@ -19,6 +19,8 @@ docker exec -it container_id command
 # create an image from a different file
 docker build -f FILE_NAME .
 
+# tag
+docker build -t calinate/IMAGE_TAG .
 
 
 

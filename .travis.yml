@@ -1,0 +1,9 @@
+sudo: required
+services:
+    - docker
+
+before_install:
+    - docker build -t calinate/docker-web-app -f production_app_1/web-app/Dockerfile.dev ./production_app_1/web-app
+
+script:
+    - docker run -e CI=true calinate/docker-web-app npm run test
