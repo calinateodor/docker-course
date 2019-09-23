@@ -1,0 +1,37 @@
+sudo: required
+
+services:
+    - docker
+
+before_install:
+    - docker build -t calinate/multi-docker-test -f ./client/Dockerfile.dev ./client
+
+script:
+    - docker run -e CI=true calinate/multi-docker-test npm test
+
+after_success:
+    - docker build -t calinate/multi-client ./client
+    - docker build -t calinate/multi-nginx ./nginx
+    - docker build -t calinate/multi-server ./server
+    - docker build -t calinate/multi-worker ./worker
+    # Login to docker CLI
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+    # Take the images and push them to docker
+    - docker push calinate/multi-client
+    - docker push calinate/multi-nginx
+    - docker push calinate/multi-server
+    - docker push calinate/multi-worker
+
+deploy:
+    provider: elasticbeanstalk
+    region: us-east-2
+    app: multi-docker
+    env: MultiDocker-env
+    bucket_name: elasticbeanstalk-us-east-2-089661531509
+    bucket_path: docker-multi
+    on:
+        branch: master
+    access_key_id:
+        secure: $AWS_ACCESS_KEY
+    secret_access_key:
+        secure: $AWS_SECRET_KEY

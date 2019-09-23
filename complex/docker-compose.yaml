@@ -1,0 +1,48 @@
+version: '3'
+
+services:
+    postgres:
+        image: 'postgres:latest'
+    redis:
+        image: 'redis:latest'
+    api:
+        build:
+            dockerfile: Dockerfile.dev # only specify the name of the dockerfile
+            context: ./server # this is the path to the dockerfile from the root directory
+        volumes:
+            - /app/node_modules # stops the node_modules directory from being overwritten
+            - ./server:/app # always checks the local folder for the code. Used for dev purposes
+        environment:
+            - REDIS_HOST=redis # because we're creating the redis server in here we don't need to provide any path or such
+            - REDIS_PORT=6379 # redis default port
+            - PGUSER=postgres
+            - PGHOST=postgres # becasue we named the postgres as postgres
+            - PGDATABASE=postgres
+            - PGPASSWORD=postgres_password # default password
+            - PGPORT=5432
+        depends_on:
+            - postgres
+    client:
+        build:
+            dockerfile: Dockerfile.dev
+            context: ./client
+        volumes:
+            - /app/node_modules
+            - ./client:/app
+    worker:
+        build:
+            dockerfile: Dockerfile.dev
+            context: ./worker
+        volumes:
+            - /app/node_modules
+            - ./worker:/app
+        environment:
+            - REDIS_HOST=redis
+            - REDIS_PORT=6379
+    nginx:
+        restart: always # restart policy
+        build:
+            dockerfile: Dockerfile.dev
+            context: ./nginx
+        ports:
+            - '3050:80'
